@@ -1,9 +1,14 @@
 package com.michalbarczyk.groupexpense;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +24,7 @@ public class EventFragment extends Fragment {
 
     DBHelper dbHelper;
     Button btnAddEvent;
-    EditText editEventName;
+    EditText editEventName, input;
 
 
     public EventFragment() {
@@ -39,24 +44,40 @@ public class EventFragment extends Fragment {
 
         dbHelper = new DBHelper(getContext());
 
-        editEventName = (EditText) getView().findViewById(R.id.edit_event_name);
-        btnAddEvent = (Button) getView().findViewById(R.id.btn_add_event);
+        RecyclerView recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_event);
 
-        enableAddEvent();
+        recyclerView.setHasFixedSize(true);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        UserAdapter adapter = new UserAdapter(dbHelper.getAllEventsList());
+
+        recyclerView.setAdapter(adapter);
+
+        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("TITLE");
+        builder.setMessage("messagex222");
+
+        input = new EditText(getContext());
+        builder.setView(input);
+
+        builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String txt = input.getText().toString();
+                Toast.makeText(getContext(), txt, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        final AlertDialog alertDialog = builder.create();
+
+        FloatingActionButton fab = (FloatingActionButton) getView().findViewById(R.id.fab_add_event);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(getActivity(), "WORKS", Toast.LENGTH_LONG).show();
+                alertDialog.show();
+            }
+        });
     }
-
-    private void enableAddEvent() {
-        btnAddEvent.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (dbHelper.insertEvent(editEventName.getText().toString()))
-                            Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();
-                        else
-                            Toast.makeText(getActivity(), "Data not inserted", Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-    }
-
 }

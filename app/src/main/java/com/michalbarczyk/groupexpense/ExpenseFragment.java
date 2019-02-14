@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +43,16 @@ public class ExpenseFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         dbHelper = new DBHelper(getContext());
+
+        //RecyclerView recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_expense);
+
+        //recyclerView.setHasFixedSize(true);
+
+        //recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        //UserAdapter adapter = new UserAdapter(dbHelper.getAllEventsList());
+
+        //recyclerView.setAdapter(adapter);
 
         btnProceed = (Button) getView().findViewById(R.id.btn_proceed);
 
@@ -81,11 +93,12 @@ public class ExpenseFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int lenderId = (int)lenderSpinner.getSelectedItem();
-                        int borrowerId = (int)borrowerSpinner.getSelectedItem();
-                        int eventId = (int)eventSpinner.getSelectedItem();
+                        //TODO getting Id from unique(firstname, lastname)
+                        int lenderId = Integer.valueOf(lenderSpinner.getSelectedItem().toString());
+                        int borrowerId = Integer.valueOf(borrowerSpinner.getSelectedItem().toString());
+                        int eventId = Integer.valueOf(eventSpinner.getSelectedItem().toString());
                         int amount = moneyToInt(editAmount.getText().toString());
-                        String desc = (String)editDescription.getText().toString();
+                        String desc = editDescription.getText().toString();
 
                         if (dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
                             Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();

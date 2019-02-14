@@ -1,17 +1,21 @@
 package com.michalbarczyk.groupexpense;
 
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -21,8 +25,7 @@ import android.widget.Toast;
 public class UserFragment extends Fragment {
 
     DBHelper dbHelper;
-    EditText editFirstname, editLastname;
-    Button btnAddUser, btnShowUsers;
+    EditText inputFirstname, inputLastname;
 
     public UserFragment() {
         // Required empty public constructor
@@ -39,16 +42,53 @@ public class UserFragment extends Fragment {
 
         dbHelper = new DBHelper(getContext());
 
-        editFirstname = (EditText) getView().findViewById(R.id.edit_firstname);
-        editLastname = (EditText) getView().findViewById(R.id.edit_lastname);
-        btnAddUser = (Button) getView().findViewById(R.id.btn_add_user);
-        btnShowUsers = (Button) getView().findViewById(R.id.btn_show_users);
+        RecyclerView recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_user);
 
-        enableAddUser();
-        enableShowUsers();
+        recyclerView.setHasFixedSize(true);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        UserAdapter adapter = new UserAdapter(dbHelper.getAllUsersList());
+
+        recyclerView.setAdapter(adapter);
+
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+    // Add a TextView here for the "Title" label, as noted in the comments
+        EditText titleBox = new EditText(getContext());
+        titleBox.setHint("title");
+        layout.addView(titleBox); // Notice this is an add method
+
+    // Add another TextView here for the "Description" label
+        EditText descriptionBox = new EditText(getContext());
+        descriptionBox.setHint("Description");
+        layout.addView(descriptionBox); // Another add method
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+        builder.setView(layout);
+
+        builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String txt = inputFirstname.getText().toString();
+                Toast.makeText(getContext(), txt, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        final android.app.AlertDialog alertDialog = builder.create();
+
+        FloatingActionButton fab = (FloatingActionButton) getView().findViewById(R.id.fab_add_user);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(getActivity(), "WORKS", Toast.LENGTH_LONG).show();
+                alertDialog.show();
+            }
+        });
     }
 
-    private void enableAddUser() {
+    /*private void enableAddUser() {
         btnAddUser.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -94,5 +134,5 @@ public class UserFragment extends Fragment {
         builder.setMessage(message);
         builder.show();
     }
-
+    */
 }
