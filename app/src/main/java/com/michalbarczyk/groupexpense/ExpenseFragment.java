@@ -1,12 +1,9 @@
 package com.michalbarczyk.groupexpense;
 
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,19 +69,19 @@ public class ExpenseFragment extends Fragment {
 
     private void fillEventSpinner() {
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, dbHelper.getAllEventsList());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, dbHelper.getAllEventsNames());
         eventSpinner.setAdapter(adapter);
     }
 
     private void fillLenderSpinner() {
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, dbHelper.getAllUsersList());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, dbHelper.getAllUsersNames());
         lenderSpinner.setAdapter(adapter);
     }
 
     private void fillBorrowerSpinner() {
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, dbHelper.getAllUsersList());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, dbHelper.getAllUsersNames());
         borrowerSpinner.setAdapter(adapter);
     }
 
@@ -93,14 +90,21 @@ public class ExpenseFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //TODO getting Id from unique(firstname, lastname)
-                        int lenderId = Integer.valueOf(lenderSpinner.getSelectedItem().toString());
-                        int borrowerId = Integer.valueOf(borrowerSpinner.getSelectedItem().toString());
-                        int eventId = Integer.valueOf(eventSpinner.getSelectedItem().toString());
-                        int amount = moneyToInt(editAmount.getText().toString());
+                        String lenderName = lenderSpinner.getSelectedItem().toString();
+                        String[] splitLenderName = lenderName.split(" ");
+                        int lenderId = dbHelper.getIdFromUserName(splitLenderName[0], splitLenderName[1]);
+
+                        String borrowerName = borrowerSpinner.getSelectedItem().toString();
+                        String[] splitBorrowerName = borrowerName.split(" ");
+                        int borrowerId = dbHelper.getIdFromUserName(splitBorrowerName[0], splitBorrowerName[1]);
+
+                        String eventName = eventSpinner.getSelectedItem().toString();
+                        int eventId = dbHelper.getIdFromEventName(eventName);
+
+                        int amount = Integer.valueOf(editAmount.getText().toString());
                         String desc = editDescription.getText().toString();
 
-                        if (dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
+                        if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
                             Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();
                         else
                             Toast.makeText(getActivity(), "Data not inserted", Toast.LENGTH_LONG).show();
@@ -111,7 +115,10 @@ public class ExpenseFragment extends Fragment {
 
     private int moneyToInt(String money) {
         String[] splited = money.split(".");
-        int convertedMoney = Integer.valueOf(splited[0]) * 100 + Integer.valueOf(splited[1]);
+        int euro = Integer.valueOf(splited[0]);
+        int cent = Integer.valueOf(splited[1]);
+
+        int convertedMoney = euro * 100 + cent;
 
         return convertedMoney;
     }
