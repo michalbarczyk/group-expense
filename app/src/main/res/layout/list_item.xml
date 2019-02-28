@@ -17,7 +17,7 @@
 
             <TextView
                 android:id="@+id/item"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

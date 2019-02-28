@@ -56,7 +56,7 @@ public class UserFragment extends Fragment {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
         builder.setView(popLayout);
 
-        builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -89,8 +89,8 @@ public class UserFragment extends Fragment {
     private void prepareInputs() {
         inputFirstname = new EditText(getContext());
         inputLastname = new EditText(getContext());
-        inputFirstname.setHint("first name");
-        inputLastname.setHint("last name");
+        inputFirstname.setHint("First name");
+        inputLastname.setHint("Last name");
     }
 
 }

@@ -57,7 +57,7 @@ public class EventFragment extends Fragment {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
         builder.setView(popLayout);
 
-        builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -87,7 +87,7 @@ public class EventFragment extends Fragment {
 
     private void prepareInputs() {
         inputName = new EditText(getContext());
-        inputName.setHint("event's name");
+        inputName.setHint("Event's name");
 
     }
 }

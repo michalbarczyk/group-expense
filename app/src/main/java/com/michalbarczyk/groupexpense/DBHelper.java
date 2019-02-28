@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -78,7 +79,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return !(db.insert(TABLE_EXPENSE, null, contentValues) == -1);
     }
 
-
     public boolean insertEvent(String name) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -92,6 +92,18 @@ public class DBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "select * from User";
+        return db.rawQuery(query, null);
+    }
+
+    public Cursor getAllExpensesDetails() {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "select uL.Firstname, uL.LastName," +
+                " uB.Firstname, uB.LastName," +
+                " x.Amount, e.Name, x.Time from Expense x" +
+                " join User uL on x.LenderId = uL.UserId" +
+                " join User uB on x.BorrowerId = uB.UserId" +
+                " join Event e on x.EventId = e.EventId";
         return db.rawQuery(query, null);
     }
 
@@ -118,28 +130,38 @@ public class DBHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             names.add(cursor.getString(1) + " " + cursor.getString(2));
         }
-        // return event list
+
         return names;
     }
 
-    public int eventResultPerUser(int userId, int eventId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public List<String> getAllExpensesSummaries() {
+        List<String> names = new LinkedList<>();
 
-        String lendQuery = "select sum(Amount) from " + TABLE_EXPENSE +
-                " where " + EXPENSE_COL_1 + " =? " +
-                " and " + EXPENSE_COL_3 + " =? ";
-        Cursor lendCursor =  db.rawQuery(lendQuery, new String[] {String.valueOf(userId), String.valueOf(eventId)});
-        lendCursor.moveToNext();
-        int lendValue = Integer.valueOf(lendCursor.getString(0));
+        Cursor cursor = getAllExpensesDetails();
 
-        String borrowQuery = "select sum(Amount) from " + TABLE_EXPENSE +
-                " where " + EXPENSE_COL_2 + " =? " +
-                " and " + EXPENSE_COL_3 + " =? ";
-        Cursor borrowCursor =  db.rawQuery(lendQuery, new String[] {String.valueOf(userId), String.valueOf(eventId)});
-        borrowCursor.moveToNext();
-        int borrowValue = Integer.valueOf(borrowCursor.getString(0));
+        while (cursor.moveToNext()) {
 
-        return lendValue - borrowValue;
+            StringBuilder builder = new StringBuilder();
+            builder.append(cursor.getString(5));
+            builder.append(" | ");
+            builder.append(cursor.getString(6));
+            builder.append("\n");
+            builder.append(cursor.getString(0));
+            builder.append(" ");
+            builder.append(cursor.getString(1));
+            builder.append(" -> ");
+            builder.append(cursor.getString(2));
+            builder.append(" ");
+            builder.append(cursor.getString(3));
+            builder.append(":\nAmount = ");
+            builder.append(cursor.getString(4));
+
+            names.add(builder.toString());
+        }
+
+        Collections.reverse(names);
+
+        return names;
     }
 
     public Cursor getResultsByEventId(int eventId) {
@@ -154,15 +176,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "(select LenderId from  Expense x where x.EventId = ?) " +
                 "or u.UserId in " +
                 "(select BorrowerId from  Expense x where x.EventId = ?) ";
-        /*String query = "select u.UserId, u.FirstName, u.LastName, " +
-                "ifnull(SUM(xL.Amount), 0), " +
-                "ifnull(SUM(xB.Amount), 0), " +
-                "ifnull(SUM(xL.Amount), 0) - ifnull(SUM(xB.Amount), 0) " +
-                "from User u " +
-                "left join Expense xL on u.UserId = xL.LenderId " +
-                "left join Expense xB on u.UserId = xB.BorrowerId " +
-                "where xL.eventId = ? or xB.eventId = ?" +
-                "group by u.UserId, u.FirstName, u.LastName"; */
 
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(eventId),
                 String.valueOf(eventId),

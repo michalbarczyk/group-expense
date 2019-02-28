@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(this);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.initial_fragment, new EventFragment()).commit();
     }
 
     @Override
@@ -74,38 +77,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-
-        /*
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_event) {
-
-            EventFragment event = new EventFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.add(R.id.ffragment, event);
-            transaction.commit();
-
-        } else if (id == R.id.nav_user) {
-
-            UserFragment user = new UserFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.add(R.id.ffragment, user);
-            transaction.addToBackStack(null);
-            transaction.commit();
-
-
-        } else if (id == R.id.nav_expense) {
-            switchToExpenseActivity();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-
-        */
 
         int id = item.getItemId();
         Fragment fragment = null;

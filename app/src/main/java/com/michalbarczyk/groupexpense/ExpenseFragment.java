@@ -1,15 +1,19 @@
 package com.michalbarczyk.groupexpense;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -19,20 +23,21 @@ import android.widget.Toast;
  */
 public class ExpenseFragment extends Fragment {
 
-    Spinner eventSpinner, lenderSpinner, borrowerSpinner;
-    Button btnProceed;
-    EditText editAmount, editDescription;
     DBHelper dbHelper;
+    Spinner lenderSpinner, borrowerSpinner, eventSpinner;
+    EditText inputAmount, inputDescription;
+    ExpenseAdapter adapter;
+    RecyclerView recyclerView;
+    LinearLayout popLayout;
+    FloatingActionButton fab;
 
     public ExpenseFragment() {
         // Required empty public constructor
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_expense, container, false);
     }
 
@@ -41,30 +46,74 @@ public class ExpenseFragment extends Fragment {
 
         dbHelper = new DBHelper(getContext());
 
-        //RecyclerView recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_expense);
+        prepareSpinners();
+        prepareInputs();
+        preparePopLayout();
 
-        //recyclerView.setHasFixedSize(true);
+        recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_expense);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ExpenseAdapter(dbHelper.getAllExpensesSummaries());
+        recyclerView.setAdapter(adapter);
 
-        //recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+        builder.setView(popLayout);
 
-        //UserAdapter adapter = new UserAdapter(dbHelper.getAllEventsList());
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-        //recyclerView.setAdapter(adapter);
+                String lenderName = lenderSpinner.getSelectedItem().toString();
+                String[] splitLenderName = lenderName.split(" ");
+                int lenderId = dbHelper.getIdFromUserName(splitLenderName[0], splitLenderName[1]);
 
-        btnProceed = (Button) getView().findViewById(R.id.btn_proceed);
+                String borrowerName = borrowerSpinner.getSelectedItem().toString();
+                String[] splitBorrowerName = borrowerName.split(" ");
+                int borrowerId = dbHelper.getIdFromUserName(splitBorrowerName[0], splitBorrowerName[1]);
 
-        eventSpinner = (Spinner) getView().findViewById(R.id.event_spinner);
-        lenderSpinner = (Spinner) getView().findViewById(R.id.lender_spinner);
-        borrowerSpinner = (Spinner) getView().findViewById(R.id.borrower_spinner);
+                String eventName = eventSpinner.getSelectedItem().toString();
+                int eventId = dbHelper.getIdFromEventName(eventName);
 
-        editAmount = (EditText) getView().findViewById(R.id.amount);
-        editDescription = (EditText) getView().findViewById(R.id.description);
+                int amount = Integer.valueOf(inputAmount.getText().toString());
+                String desc = inputDescription.getText().toString();
 
-        fillEventSpinner();
+                if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
+                    Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getActivity(), "Data not inserted", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        final android.app.AlertDialog alertDialog = builder.create();
+
+        fab = (FloatingActionButton) getView().findViewById(R.id.fab_add_expense);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                alertDialog.show();
+            }
+        });
+    }
+
+    private void preparePopLayout() {
+        popLayout = new LinearLayout(getContext());
+        popLayout.setOrientation(LinearLayout.VERTICAL);
+        popLayout.addView(lenderSpinner);
+        popLayout.addView(borrowerSpinner);
+        popLayout.addView(eventSpinner);
+        popLayout.addView(inputAmount);
+        popLayout.addView(inputDescription);
+    }
+
+    private void prepareSpinners() {
+        lenderSpinner = new Spinner(getContext());
+        borrowerSpinner = new Spinner(getContext());
+        eventSpinner = new Spinner(getContext());
+
         fillLenderSpinner();
         fillBorrowerSpinner();
-
-        enableProceed();
+        fillEventSpinner();
     }
 
     private void fillEventSpinner() {
@@ -85,42 +134,11 @@ public class ExpenseFragment extends Fragment {
         borrowerSpinner.setAdapter(adapter);
     }
 
-    private void enableProceed() {
-        btnProceed.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String lenderName = lenderSpinner.getSelectedItem().toString();
-                        String[] splitLenderName = lenderName.split(" ");
-                        int lenderId = dbHelper.getIdFromUserName(splitLenderName[0], splitLenderName[1]);
-
-                        String borrowerName = borrowerSpinner.getSelectedItem().toString();
-                        String[] splitBorrowerName = borrowerName.split(" ");
-                        int borrowerId = dbHelper.getIdFromUserName(splitBorrowerName[0], splitBorrowerName[1]);
-
-                        String eventName = eventSpinner.getSelectedItem().toString();
-                        int eventId = dbHelper.getIdFromEventName(eventName);
-
-                        int amount = Integer.valueOf(editAmount.getText().toString());
-                        String desc = editDescription.getText().toString();
-
-                        if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
-                            Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();
-                        else
-                            Toast.makeText(getActivity(), "Data not inserted", Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-    }
-
-    private int moneyToInt(String money) {
-        String[] splited = money.split(".");
-        int euro = Integer.valueOf(splited[0]);
-        int cent = Integer.valueOf(splited[1]);
-
-        int convertedMoney = euro * 100 + cent;
-
-        return convertedMoney;
+    private void prepareInputs() {
+        inputAmount = new EditText(getContext());
+        inputDescription = new EditText(getContext());
+        inputAmount.setHint("Amount");
+        inputDescription.setHint("Description");
     }
 
 }
