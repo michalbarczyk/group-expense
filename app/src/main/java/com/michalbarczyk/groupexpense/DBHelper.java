@@ -43,13 +43,41 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + TABLE_USER + " (Id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-              "FirstName TEXT NOT NULL, LastName TEXT NOT NULL)" );
+
+        db.execSQL("CREATE TABLE `Event` (\n" +
+                "`EventId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "`Name`\tTEXT NOT NULL\n" +
+                ");");
+
+        db.execSQL("CREATE TABLE `User` (\n" +
+                "`UserId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "`FirstName`\tTEXT NOT NULL,\n" +
+                "`LastName`\tTEXT NOT NULL\n" +
+                ");");
+
+        db.execSQL("CREATE TABLE `Expense` (\n" +
+                "`ExpenseId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "`LenderId`\tINTEGER NOT NULL,\n" +
+                "`BorrowerId`\tINTEGER NOT NULL,\n" +
+                "`EventId`\tINTEGER NOT NULL,\n" +
+                "`Amount`\tINTEGER NOT NULL,\n" +
+                "`Time`\tTEXT NOT NULL,\n" +
+                "`Description`\tTEXT,\n" +
+                "FOREIGN KEY(`BorrowerId`) REFERENCES `User`(`UserId`),\n" +
+                "FOREIGN KEY(`EventId`) REFERENCES `Event`(`EventId`),\n" +
+                "FOREIGN KEY(`LenderId`) REFERENCES `User`(`UserId`)\n" +
+                ");");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        db.execSQL("drop table if exists " + TABLE_EXPENSE);
+
         db.execSQL("drop table if exists " + TABLE_USER);
+
+        db.execSQL("drop table if exists " + TABLE_EVENT);
+
         onCreate(db);
     }
 

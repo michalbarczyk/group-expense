@@ -1,6 +1,8 @@
 package com.michalbarczyk.groupexpense;
 
+import android.Manifest;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //DBHelper dbHelper = new DBHelper(this);
+        //SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
