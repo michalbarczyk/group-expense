@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +75,7 @@ public class ExpenseFragment extends Fragment {
                 String eventName = eventSpinner.getSelectedItem().toString();
                 int eventId = dbHelper.getIdFromEventName(eventName);
 
-                int amount = Integer.valueOf(inputAmount.getText().toString());
+                int amount = MoneyHandler.valueOf(inputAmount.getText().toString());
                 String desc = inputDescription.getText().toString();
 
                 if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
@@ -136,6 +137,7 @@ public class ExpenseFragment extends Fragment {
 
     private void prepareInputs() {
         inputAmount = new EditText(getContext());
+        inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER); //TODO dot in numeric input
         inputDescription = new EditText(getContext());
         inputAmount.setHint("Amount");
         inputDescription.setHint("Description");
