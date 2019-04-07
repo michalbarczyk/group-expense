@@ -1,12 +1,10 @@
-package com.michalbarczyk.groupexpense;
-
+package com.michalbarczyk.groupexpense.view_controller;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,10 +14,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.michalbarczyk.groupexpense.R;
+import com.michalbarczyk.groupexpense.model.DBHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class UserFragment extends Fragment {
 
     DBHelper dbHelper;
@@ -60,7 +57,7 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (dbHelper.insertUser(inputFirstname.getText().toString(), inputLastname.getText().toString()))
+                if (dbHelper.insertUser(inputFirstname.getText().toString().trim(), inputLastname.getText().toString().trim()))
                     Toast.makeText(getActivity(), "New user added", Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(getActivity(), "New user not added", Toast.LENGTH_LONG).show();
@@ -92,5 +89,4 @@ public class UserFragment extends Fragment {
         inputFirstname.setHint("First name");
         inputLastname.setHint("Last name");
     }
-
 }

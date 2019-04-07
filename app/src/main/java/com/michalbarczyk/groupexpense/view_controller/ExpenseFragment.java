@@ -1,7 +1,7 @@
-package com.michalbarczyk.groupexpense;
-
+package com.michalbarczyk.groupexpense.view_controller;
 
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
+import com.michalbarczyk.groupexpense.R;
+import com.michalbarczyk.groupexpense.model.DBHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+//TODO on-click popup window containing expense description
+
 public class ExpenseFragment extends Fragment {
 
     DBHelper dbHelper;
@@ -54,7 +59,7 @@ public class ExpenseFragment extends Fragment {
         recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_expense);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ExpenseAdapter(dbHelper.getAllExpensesSummaries());
+        adapter = new ExpenseAdapter(this.getExpensesReports());
         recyclerView.setAdapter(adapter);
 
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
@@ -75,10 +80,10 @@ public class ExpenseFragment extends Fragment {
                 String eventName = eventSpinner.getSelectedItem().toString();
                 int eventId = dbHelper.getIdFromEventName(eventName);
 
-                int amount = MoneyHandler.valueOf(inputAmount.getText().toString());
+                int amount = MoneyConverter.valueOf(inputAmount.getText().toString());
                 String desc = inputDescription.getText().toString();
 
-                if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc))
+                if (lenderId != borrowerId && dbHelper.insertExpense(lenderId, borrowerId, eventId, amount, desc.trim()))
                     Toast.makeText(getActivity(), "Data inserted", Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(getActivity(), "Data not inserted", Toast.LENGTH_LONG).show();
@@ -98,6 +103,7 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void preparePopLayout() {
+
         popLayout = new LinearLayout(getContext());
         popLayout.setOrientation(LinearLayout.VERTICAL);
         popLayout.addView(lenderSpinner);
@@ -108,6 +114,7 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void prepareSpinners() {
+
         lenderSpinner = new Spinner(getContext());
         borrowerSpinner = new Spinner(getContext());
         eventSpinner = new Spinner(getContext());
@@ -136,11 +143,49 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void prepareInputs() {
+
         inputAmount = new EditText(getContext());
-        inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER); //TODO dot in numeric input
+        inputAmount.addTextChangedListener(new MoneyTextWatcher(inputAmount));
+        inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER);
+        inputAmount.setGravity(Gravity.RIGHT);
         inputDescription = new EditText(getContext());
         inputAmount.setHint("Amount");
         inputDescription.setHint("Description");
+    }
+
+    private List<String> getExpensesReports() {
+
+        List<String> raports = new LinkedList<>();
+
+        Cursor cursor = dbHelper.getAllExpensesDetails();
+
+        while (cursor.moveToNext()) {
+
+            StringBuilder builder = new StringBuilder();
+            builder.append(cursor.getString(5));
+            builder.append(" | ");
+            builder.append(cursor.getString(6).replaceAll("_", " | "));
+            builder.append("\n");
+            builder.append(cursor.getString(0));
+            builder.append(" ");
+            builder.append(cursor.getString(1));
+            builder.append(" -> ");
+            builder.append(cursor.getString(2));
+            builder.append(" ");
+            builder.append(cursor.getString(3));
+            builder.append(":\nAmount = ");
+            builder.append(MoneyConverter.getRealMoneyValue(
+                    Integer.valueOf(
+                            cursor.getString(4))));
+
+            raports.add(builder.toString());
+        }
+
+        Collections.reverse(raports);
+
+        return raports;
+
+
     }
 
 }

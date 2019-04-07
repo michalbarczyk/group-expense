@@ -1,7 +1,5 @@
-package com.michalbarczyk.groupexpense;
+package com.michalbarczyk.groupexpense.view_controller;
 
-
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,15 +10,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.michalbarczyk.groupexpense.R;
+import com.michalbarczyk.groupexpense.model.DBHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class EventFragment extends Fragment {
 
     DBHelper dbHelper;
@@ -31,7 +27,7 @@ public class EventFragment extends Fragment {
     FloatingActionButton fab;
 
     public EventFragment() {
-        // Required empty public constructor
+        // necessary empty constructor
     }
 
     @Override
@@ -61,7 +57,7 @@ public class EventFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (dbHelper.insertEvent(inputName.getText().toString()))
+                if (dbHelper.insertEvent(inputName.getText().toString().trim()))
                     Toast.makeText(getActivity(), "New event added", Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(getActivity(), "New event not added", Toast.LENGTH_LONG).show();
@@ -88,6 +84,5 @@ public class EventFragment extends Fragment {
     private void prepareInputs() {
         inputName = new EditText(getContext());
         inputName.setHint("Event's name");
-
     }
 }

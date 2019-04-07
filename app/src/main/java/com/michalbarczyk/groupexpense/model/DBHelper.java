@@ -1,4 +1,4 @@
-package com.michalbarczyk.groupexpense;
+package com.michalbarczyk.groupexpense.model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,11 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -137,7 +135,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<String> getAllEventsNames() {
         List<String> eventList = new ArrayList<>();
-        // Select All Query
+
         String selectQuery = "SELECT Name FROM Event";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -158,36 +156,6 @@ public class DBHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             names.add(cursor.getString(1) + " " + cursor.getString(2));
         }
-
-        return names;
-    }
-
-    public List<String> getAllExpensesSummaries() {
-        List<String> names = new LinkedList<>();
-
-        Cursor cursor = getAllExpensesDetails();
-
-        while (cursor.moveToNext()) {
-
-            StringBuilder builder = new StringBuilder();
-            builder.append(cursor.getString(5));
-            builder.append(" | ");
-            builder.append(cursor.getString(6));
-            builder.append("\n");
-            builder.append(cursor.getString(0));
-            builder.append(" ");
-            builder.append(cursor.getString(1));
-            builder.append(" -> ");
-            builder.append(cursor.getString(2));
-            builder.append(" ");
-            builder.append(cursor.getString(3));
-            builder.append(":\nAmount = ");
-            builder.append(cursor.getString(4));
-
-            names.add(builder.toString());
-        }
-
-        Collections.reverse(names);
 
         return names;
     }
